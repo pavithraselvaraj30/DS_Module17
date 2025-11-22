@@ -1,53 +1,109 @@
-# Ex25 Adjacency List Representation
-## DATE:
+# Ex25 Finding the Fastest Route to a Charging Station using Dijkstra’s Algorithm
+## DATE: 21-11-25
 ## AIM:
-To write a C program to represent the given graph using the adjacency list.
-
+To design and implement a java program that helps an electric vehicle (EV) find the shortest travel time from its current block to the nearest charging station using Dijkstra’s shortest path algorithm.
 ## Algorithm
-1. Initialize Variables: Declare n and i as integers.
-2. Read Input: Use scanf to read N (number of vertices) and n (number of edges).
-3. Input Edges: Declare edges[n] of type struct Edge; use scanf to read src and dest for each edge.
-4. Construct Graph: Call createGraph(edges, n) and store the result in graph. 
-5. Print and Exit: Call printGraph(graph) to display the graph, then return 0.
- 
+
+1. Read number of blocks (nodes) and roads (edges) with travel times (weights).
+2. Build a weighted adjacency list for the graph.
+3. Read the list of charging station nodes.
+4. Run Dijkstra’s algorithm from the EV’s current location to compute shortest distances to all nodes.
+5. Find the minimum distance among all charging stations.
+6. Output the fastest route travel time and the corresponding charging station.
+  
 
 ## Program:
 ```
 /*
-Program to find and display the priority of the operator in the given Postfix expression
-DevelopedBy: pavithra s
-Register Number: 212223230147
+Program to find the Fastest Route to a Charging Station using Dijkstra’s Algorithm
+Developed by: Pavithra S
+RegisterNumber: 212223230147
 */
 
-int main(void)
-{   int n,i;
-    scanf("%d",&N);
-    scanf("%d",&n);
-    // input array containing edges of the graph (as per the above diagram)
-    // (x, y) pair in the array represents an edge from x to y
-    struct Edge edges[n];
-    for (i = 0; i < n; i++)
-    {
-        // get the source and destination vertex
-        scanf("%d",&edges[i].src);
-        scanf("%d",&edges[i].dest);
-      
+import java.util.*;
+
+class Edge {
+    int to, weight;
+    Edge(int to, int weight) { this.to = to; this.weight = weight; }
+}
+
+public class FastestChargingRoute {
+
+    static int[] dijkstra(List<List<Edge>> graph, int src) {
+        int n = graph.size();
+        int[] dist = new int[n];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[src] = 0;
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        pq.add(new int[]{src, 0});
+        
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int u = curr[0], d = curr[1];
+            if (d > dist[u]) continue;
+            for (Edge e : graph.get(u)) {
+                if (dist[u] + e.weight < dist[e.to]) {
+                    dist[e.to] = dist[u] + e.weight;
+                    pq.add(new int[]{e.to, dist[e.to]});
+                }
+            }
+        }
+        return dist;
     }
-   
-    // construct a graph from the given edges
-    struct Graph *graph = createGraph(edges, n);
- 
-    // Function to print adjacency list representation of a graph
-    printGraph(graph);
- 
-    return 0;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of blocks (nodes): ");
+        int n = sc.nextInt();
+        System.out.print("Enter number of roads (edges): ");
+        int m = sc.nextInt();
+        
+        List<List<Edge>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+        
+        System.out.println("Enter roads as (u v travelTime) with 0-based indices:");
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt();
+            int v = sc.nextInt();
+            int w = sc.nextInt();
+            graph.get(u).add(new Edge(v, w));
+            graph.get(v).add(new Edge(u, w));
+        }
+
+        System.out.print("Enter number of charging stations: ");
+        int k = sc.nextInt();
+        int[] stations = new int[k];
+        System.out.println("Enter charging station nodes (0-based):");
+        for (int i = 0; i < k; i++) stations[i] = sc.nextInt();
+
+        System.out.print("Enter current block of EV (0-based): ");
+        int start = sc.nextInt();
+
+        int[] dist = dijkstra(graph, start);
+        int minDist = Integer.MAX_VALUE;
+        int nearestStation = -1;
+        for (int station : stations) {
+            if (dist[station] < minDist) {
+                minDist = dist[station];
+                nearestStation = station;
+            }
+        }
+
+        if (nearestStation == -1 || minDist == Integer.MAX_VALUE)
+            System.out.println("No reachable charging station.");
+        else
+            System.out.println("Nearest charging station: " + nearestStation + " with travel time: " + minDist);
+
+        sc.close();
+    }
 }
 ```
 
 ## Output:
 
-![image](https://github.com/user-attachments/assets/079abe3e-fcfe-4fe5-bd85-0db591410ede)
+<img width="433" height="429" alt="514975418-a6a651b4-0d47-45e1-8b34-011beaf16bc1" src="https://github.com/user-attachments/assets/db5c0e05-dada-4e24-842c-82a5cb3ba7f8" />
 
 
 ## Result:
-Thus, the C program to represent the given graph using the adjacency list is implemented successfully
+The program has been successfully implemented and executed.
+It uses Dijkstra’s algorithm to determine the shortest travel time from the EV’s current location to the nearest charging station and correctly handles cases where no station is reachable.
